@@ -3,8 +3,7 @@ import pkg_resources
 import string
 import math
 import operator
-
-_all_ = [readability_scores,list_implemented_scores,char_count,syllable_count,sentence_count,avg_sentence_length,avg_syllables_per_word,avg_letter_per_word,polysyllabcount]
+import re
 
 exclude = list(string.punctuation)
 easy_word_set = set([ln.strip() for ln in pkg_resources.resource_stream('textstat', 'easy_words.txt')])
@@ -52,6 +51,13 @@ def syllable_count(txt_given):
             count += 1
         return count
 
+def lexicon_count(txt):
+    """
+    lexicont of a text
+    """
+    sentence_words = [wd for wd in txt if wd not in exclude]
+    return len(sentence_words)
+    
 def sentence_count(txt):
     """
     Sentence count of a text
@@ -190,17 +196,17 @@ def lix(wordlist,ASL,lc):
 default_list_of_scores = ["flesch_reading_ease","smog index","flesch reading grade","coleman liau index","automated",
           "dale chall","linsear write formula","lix","gunning_fog"]
 
-def list_implemented_scores:
+def list_implemented_scores():
 	print(default_list_of_scores)
         
 def readability_scores(text,default_scores=default_list_of_scores):
-	wordlist_ = [ch for ch in txt if ch not in exclude]
+	wordlist_ = [ch for ch in text if ch not in exclude]
 	lc = float(len(wordlist_))
 	sc = float(sentence_count(text))
 	syllable_c = float(syllable_count(text))
 	char_c = float(char_count(text))
 	
-	ASL = float(avg_sentence_length(ls,sc))
+	ASL = float(avg_sentence_length(lc,sc))
 	ASW = float(avg_syllables_per_word(syllable_c,lc))
 	ALW = float(avg_letter_per_word(char_c,lc))
 	poly_syllab = polysyllabcount(wordlist_)
@@ -228,6 +234,7 @@ def readability_scores(text,default_scores=default_list_of_scores):
 	
 	return score_dict
 	
-	
+_all_ = [readability_scores,list_implemented_scores,char_count,syllable_count,sentence_count,avg_sentence_length,avg_syllables_per_word,avg_letter_per_word,polysyllabcount]
+
 	
 	

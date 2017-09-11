@@ -15,7 +15,7 @@ Though there are various readability scores (also called textstat), they are all
 This version also gets rid of some other repetitive calculations and implements syllable count differently. The master version is using the number of possible hyphenizations as the number of syllables in a word, but at least for the project I am working on, it makes more sense to use vowel-based syllable count, so I change it.
 
 
-Install
+<!--Install
 -------
 
 You can install textstat either via the Python Package Index (PyPI) or from source.
@@ -46,7 +46,7 @@ You can install it by doing the following,:
     $ python setup.py build
    
     $ python setup.py install # as root
-```
+```-->
 List of Functions
 ----
 ### Character Count
