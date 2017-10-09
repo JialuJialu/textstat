@@ -1,13 +1,12 @@
-from __future__ import print_function
 import numpy as np
 import re
 from collections import defaultdict
-
 
 easy_word_set = set()
 with open("easy_words.txt") as f:
     for wd in f:
         easy_word_set.add(wd.strip())
+
 
 def char_count(wordlist):
     """
@@ -17,8 +16,6 @@ def char_count(wordlist):
     """
     mp = map((lambda x: len(x)),wordlist)
     return np.sum(list(mp))
-
-#need refining
 
 def syllable_count(text):
     """
@@ -43,7 +40,6 @@ def syllable_count(text):
         if text[-1]=='e':
             if text[-2:]!="le":
                 count -= 1
-            #discard trailing "e", except where ending is "le", but include words like pale, male, mole
         if count == 0:
             count = 1
         return count
@@ -58,13 +54,6 @@ def sentence_count(txt):
         if len(sentence.split()) <= 2:
             ignoreCount = ignoreCount + 1
     return max(1, len(sentences) - ignoreCount)
-
-
-#     lc = float(lexicon_count(this))
-#     sc = float(sentence_count(self))
-#     syllable_c = float(syllable_count(self))
-#     char_c = float(char_count(self))
-
 
 def avg_sentence_length(lc,sc):
     try:
@@ -193,8 +182,7 @@ default_list_of_scores = ["flesch_reading_ease","smog index","flesch reading gra
 def list_implemented_scores():
 	print(default_list_of_scores)
 
-
-def calculate(u,text_data):
+def readability_scores(text_data,interested_scores=default_list_of_scores,displayindex=False):
     wordlist_= re.findall(r'[a-z\'-]+',text_data)
     lc = float(len(wordlist_))
     sc = float(sentence_count(text_data))
@@ -206,30 +194,42 @@ def calculate(u,text_data):
     ASW = avg_syllables_per_word(syllabdict,lc)
     dw_c = difficult_words(wordlist_)
 
+    if displayindex == True:
+        index_dict = {}
+        index_dict["word_count"]=lc
+        index_dict["sentence_count"]=sc
+        index_dict["character_count"]=char_c
+        index_dict["avg_syllables_per_word"]=ASW
+        index_dict["avg_letter_per_word"]=ALW
+        index_dict["avg_sentence_length"]=ASL
+        index_dict["percentage of polysyllable words"]=poly_syllab/float(lc)
+
     score_dict = {}
     complex_word_count = -1
-    if "flesch reading ease" in default_scores:
+    if "flesch reading ease" in interested_scores:
         score_dict["flesch reading ease"] = flesch_reading_ease(ASL,ASW)
-    if "smog index" in default_scores:
+    if "smog index" in interested_scores:
         score_dict["smog index"] = smog_index(poly_syllab,sc)
-    if "flesch reading grade" in default_scores:
-        score_dict["flesch reading grade"] = flesch_reading_grade(ASL,ASW)
-    if "coleman liau index" in default_scores:
+    if "flesch reading grade" in interested_scores:
+        score_dict["flesch reading grade"] = flesch_kincaid_grade(ASL,ASW)
+    if "coleman liau index" in interested_scores:
         score_dict["coleman liau index"] = coleman_liau_index(ALW, ASL)
-    if "linsear write formula" in default_scores:
+    if "linsear write formula" in interested_scores:
         score_dict["linsear write formula"],complex_word_count = linsear_write_formula(wordlist_,sc,lc,syllabdict)
-    if "lix" in default_scores:
+    if "lix" in interested_scores:
         score_dict["lix"] = lix(wordlist_,ASL,lc)
-    if "gunning fog" in default_scores:
+    if "gunning fog" in interested_scores:
         if complex_word_count == -1:
             complex_word_count = linsear_write_formula(wordlist_,sc,lc,syllabdict)[1]
-        re_dict["gunning fog index"] = gunning_fog(complex_word_count,lc,ASL)
-    if "dale chall" in default_scores:
+        score_dict["gunning fog index"] = gunning_fog(complex_word_count,lc,ASL)
+    if "dale chall" in interested_scores:
         score_dict["dale chall"] = dale_chall_readability_score(lc,dw_c,ASL)
-    if "automated" in default_scores:
+    if "automated" in interested_scores:
         score_dict["automated"] =  automated_readability_index(ALW,ASL)
-    
-    return score_dict
 
+    if displayindex == True:
+        return score_dict,index_dict
+    else:
+        return score_dict
 
-_all_ = [readability_scores,list_implemented_scores,char_count,syllable_count,sentence_count,avg_sentence_length,avg_syllables_per_word,avg_letter_per_word,polysyllabcount]
+_all_ = [readability_scores,list_implemented_scores]
